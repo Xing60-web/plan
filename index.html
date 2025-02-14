@@ -74,8 +74,13 @@
                 const response = await fetch('plan_for_server.txt');
                 const data = await response.text();
                 return data.split('\n').reduce((acc, line) => {
-                    const [date, note] = line.split(',');
-                    if (date && note) acc[date.trim()] = note.trim();
+                    const [date, panduan, note] = line.split(',');
+                    if (date && panduan && note) {
+                        acc[date.trim()] = {
+                            panduan: panduan.trim()
+                            note: note.trim()
+                            };
+                    }
                     return acc;
                 }, {});
             } catch (error) {
@@ -141,17 +146,17 @@
                         if (date) {
                             const day = date.getDate();
                             const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                            const note = schedule[dateKey] || '';
+                            const this_note = schedule[dateKey] || '';
                             
                             let cellClass = 'current-month';
                             let displayText = `<span class="day-number">${day}</span>`;
                             
-                            if (note === 'ALL') {
+                            if (thisnote.panduan === 'ALL') {
                                 cellClass = 'fully-booked';
-                                displayText += `${note}`;
-                            } else if (note) {
+                                displayText += `${thisnote.note}`;
+                            } else if (thisnote) {
                                 cellClass = 'partially-booked';
-                                displayText += `${note}`;
+                                displayText += `${thisnote.note}`;
                             }
                             html += `<td class="${cellClass}">${displayText}</td>`;
                         } else {
