@@ -74,8 +74,13 @@
                 const response = await fetch('plan_for_server.txt');
                 const data = await response.text();
                 return data.split('\n').reduce((acc, line) => {
-                    const [date, panduan, note] = line.split(',');
-                    if (date && panduan && note) {
+                    const parts = line.split(',');
+                    
+                    const date = parts[0]? parts[0].trim() : ' ';
+                    const panduan = parts[1]? parts[1].trim() : ' ';
+                    const note = parts[2]? parts[2].trim() : ' ';
+
+                    if (date) {
                         acc[date.trim()] = {
                             panduan: panduan.trim(),
                             note: note.trim()
