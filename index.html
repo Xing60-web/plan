@@ -154,10 +154,10 @@
                             if (thisnote.panduan === 'ALL') {
                                 cellClass = 'fully-booked';
                                 displayText += `${this_note.note}`;
-                            } else if (thisnote) {
-                                cellClass = 'partially-booked';
-                                displayText += `${this_note.note}`;
-                            }
+                            } //else if (thisnote) {
+                               // cellClass = 'partially-booked';
+                                //displayText += `${this_note.note}`;
+                            //}
                             html += `<td class="${cellClass}">${displayText}</td>`;
                         } else {
                             html += '<td></td>';
