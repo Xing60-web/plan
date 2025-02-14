@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Future plan of 60cm.</title>
+    <style>
+        .calendar {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 5px solid #bbb;
+            padding: 5px;
+            text-align: center;
+            width: 14%;
+            height: 80px;
+            vertical-align: top;
+        }
+        
+        .month-title {
+            font-size: 30px;
+            font-weight: bold;
+            padding: 5px;
+        }
+        
+        .day-title {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 1px;
+        }
+
+        .footer-note {
+            font-family: Times New Roman, serif;
+            font-size: 22px;
+        }
+        
+        .current-month {
+            background-color: #ffffff;
+        }
+
+        .fully-booked {
+            background-color: #000000;
+            color: white;
+        }
+
+        .partially-booked {
+            background-color: #ffff99;
+        }
+
+        .day-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar" id="calendar"></div>
+    <footer>
+        <p class="footer-note">First line.
+        <br>Bottom line.</p>
+    </footer>
+
+    <script>
+        async function loadSchedule() {
+            try {
+                const response = await fetch('plan_for_server.txt');
+                const data = await response.text();
+                return data.split('\n').reduce((acc, line) => {
+                    const [date, note] = line.split(',');
+                    if (date && note) acc[date.trim()] = note.trim();
+                    return acc;
+                }, {});
+            } catch (error) {
+                console.error('Error loading file:', error);
+                return {};
+            }
+        }
+
+        function generateCalendar(schedule) {
+            const container = document.getElementById('calendar');
+            const now = new Date();
+            
+            // 生成两个月数据
+            const months = [
+                {
+                    year: now.getFullYear(),
+                    month: now.getMonth(),
+                    startDay: now.getDate(),
+                    endDay: new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+                },
+                {
+                    year: now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(),
+                    month: (now.getMonth() + 1) % 12,
+                    startDay: 1,
+                    endDay: new Date(
+                        now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(),
+                        (now.getMonth() + 2) % 12,
+                        0
+                    ).getDate()
+                }
+            ];
+
+            let html = '';
+            
+            months.forEach((m, index) => {
+                html += `<table><tr><th colspan="7" class="month-title">${new Date(m.year, m.month).toLocaleString('en-US', { month: 'long', year: 'numeric' })}</th></tr>`
+                html += `<tr><th class="day-title">Mon.</th><th class="day-title">Tue.</th><th class="day-title">Wed.</th><th class="day-title">Thu.</th><th class="day-title">Fri.</th><th class="day-title">Sat.</th><th class="day-title">Sun.</th></tr>`;
+                
+                const weeks = [];
+                let currentWeek = new Array(7).fill(null);
+                
+                for (let day = m.startDay; day <= m.endDay; day++) {
+                    const date = new Date(m.year, m.month, day);
+                    const weekday = (date.getDay() + 6) % 7; // 转换为周一=0 至 周日=6
+                    
+                    if (currentWeek[weekday]) {
+                        weeks.push([...currentWeek]);
+                        currentWeek = new Array(7).fill(null);
+                    }
+                    
+                    currentWeek[weekday] = date;
+                    
+                    // 当处理到周日或月末时换行
+                    if (weekday === 6 || day === m.endDay) {
+                        weeks.push([...currentWeek]);
+                        currentWeek = new Array(7).fill(null);
+                    }
+                }
+
+                weeks.forEach(week => {
+                    html += '<tr>';
+                    week.forEach(date => {
+                        if (date) {
+                            const day = date.getDate();
+                            const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                            const note = schedule[dateKey] || '';
+                            
+                            let cellClass = 'current-month';
+                            let displayText = `<span class="day-number">${day}</span>`;
+                            
+                            if (note === 'ALL') {
+                                cellClass = 'fully-booked';
+                                displayText += `${note}`;
+                            } else if (note) {
+                                cellClass = 'partially-booked';
+                                displayText += `${note}`;
+                            }
+                            html += `<td class="${cellClass}">${displayText}</td>`;
+                        } else {
+                            html += '<td></td>';
+                        }
+                    });
+                    html += '<br>';
+                });
+                
+                html += '</table>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        loadSchedule().then(generateCalendar);
+    </script>
+</body>
+</html>
