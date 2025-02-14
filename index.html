@@ -146,17 +146,17 @@
                         if (date) {
                             const day = date.getDate();
                             const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                            const this_note = schedule[dateKey] || '';
+                            const thisnote = schedule[dateKey] || '';
                             
                             let cellClass = 'current-month';
                             let displayText = `<span class="day-number">${day}</span>`;
                             
                             if (thisnote.panduan === 'ALL') {
                                 cellClass = 'fully-booked';
-                                displayText += `${thisnote.note}`;
+                                displayText += `${this_note.note}`;
                             } else if (thisnote) {
                                 cellClass = 'partially-booked';
-                                displayText += `${thisnote.note}`;
+                                displayText += `${this_note.note}`;
                             }
                             html += `<td class="${cellClass}">${displayText}</td>`;
                         } else {
