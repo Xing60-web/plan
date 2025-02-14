@@ -77,7 +77,7 @@
                     const [date, panduan, note] = line.split(',');
                     if (date && panduan && note) {
                         acc[date.trim()] = {
-                            panduan: panduan.trim()
+                            panduan: panduan.trim(),
                             note: note.trim()
                             };
                     }
@@ -153,10 +153,10 @@
                             
                             if (thisnote.panduan === 'ALL') {
                                 cellClass = 'fully-booked';
-                                displayText += `<br>${thisnote.note || ''}`;
+                                displayText += `${thisnote.note}`;
                             } //else if (thisnote.note) {
-                                //cellClass = 'partially-booked';
-                               // displayText += `${thisnote.note}`;
+                               // cellClass = 'partially-booked';
+                              //  displayText += `${thisnote.note}`;
                             //}
                             html += `<td class="${cellClass}">${displayText}</td>`;
                         } else {
